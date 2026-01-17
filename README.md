@@ -23,7 +23,7 @@ Add to your GitHub profile:
 
 ### 1. Fork & Clone
 ```bash
-git clone https://github.com/QG1o/profile-viewer.git
+git clone https://github.com/YourUsername/profile-viewer.git
 cd profile-viewer
 ```
 
@@ -35,13 +35,17 @@ cd profile-viewer
 
 ### 3. Deploy to Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/QG1o/profile-viewer)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
 
-Set these environment variables in Vercel:
+1. Click the button above
+2. Select your forked repository
+3. Add environment variables:
 ```env
 UPSTASH_REDIS_REST_URL=your-upstash-url
 UPSTASH_REDIS_REST_TOKEN=your-upstash-token
 ```
+
+4. Deploy!
 
 ### 4. Use in Your Profile
 
