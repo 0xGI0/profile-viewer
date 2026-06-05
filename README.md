@@ -3,7 +3,9 @@
 A simple, self-hosted GitHub profile view counter with a Redis backend.
 Locked to a single username and available in two display modes.
 
-![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0)
+![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&icon=ring)
+![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&mode=symbols)
+
 
 ## Features
 
