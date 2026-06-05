@@ -86,7 +86,7 @@ function renderIcon(icon) {
         defs: `
         <style>
         .rainbow { animation: rainbow 5s linear infinite; }
-        .rainbow-pupil { animation: rainbow 5s linear infinite, lookAround 3s ease-in-out infinite; }
+        .eye-look { animation: lookAround 3s ease-in-out infinite; }
         @keyframes rainbow {
             0%   { stroke:#ff3b3b; fill:#ff3b3b; }
             17%  { stroke:#ff9e2c; fill:#ff9e2c; }
@@ -105,7 +105,11 @@ function renderIcon(icon) {
         body: `
         <g transform="translate(12, 9)">
         <ellipse class="rainbow" cx="5" cy="5" rx="6" ry="4" fill="none" stroke="#ff3b3b" stroke-width="1.5"/>
-        <circle class="rainbow-pupil" cx="5" cy="5" r="2" fill="#ff3b3b"/>
+        <g class="eye-look">
+        <circle class="rainbow" cx="5" cy="5" r="2.4" fill="#ff3b3b" fill-opacity="0.45"/>
+        <circle cx="5" cy="5" r="1.5" fill="#0b0c12"/>
+        <circle cx="4.4" cy="4.3" r="0.55" fill="#ffffff" fill-opacity="0.85"/>
+        </g>
         </g>`,
     };
 }
