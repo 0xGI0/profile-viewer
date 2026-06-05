@@ -29,10 +29,10 @@ mode simply hides the number behind random symbols.
 
 ```markdown
 <!-- Normal counter -->
-![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0)
+![Profile Views](https://your-deployment.vercel.app/api/views?username=your-github-username)
 
 <!-- Random symbols on every load -->
-![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&mode=symbols)
+![Profile Views](https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols)
 ```
 
 ### Animated icon
@@ -47,10 +47,10 @@ The animated icon left of the label can be switched with the `icon` parameter
 
 ```markdown
 <!-- Counter with the spinning rainbow ring -->
-![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&icon=ring)
+![Profile Views](https://your-deployment.vercel.app/api/views?username=your-github-username&icon=ring)
 
 <!-- Symbols mode with the spinning ring -->
-![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&mode=symbols&icon=ring)
+![Profile Views](https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols&icon=ring)
 ```
 
 ## Username lock
@@ -58,15 +58,15 @@ The animated icon left of the label can be switched with the `icon` parameter
 The counter only responds to **one** username. Any other value of `username`
 returns an `Access denied` badge instead of a counter.
 
-The allowed username is read from the `ALLOWED_USERNAME` environment variable
-and defaults to `0xGI0`. To change it, update that variable in your Vercel
-project settings — no code change required. The match is case-insensitive.
+The allowed username is read from the `ALLOWED_USERNAME` environment variable.
+Set it to your own GitHub username in your Vercel project settings — no code
+change required. The match is case-insensitive.
 
 ## Setup
 
 ### 1. Fork & Clone
 ```bash
-git clone https://github.com/0xGI0/profile-viewer.git
+git clone https://github.com/your-github-username/profile-viewer.git
 cd profile-viewer
 ```
 
@@ -96,7 +96,7 @@ ALLOWED_USERNAME=your-github-username
 Replace `profile-viewer-nu.vercel.app` with your own Vercel domain and use
 your allowed username:
 ```markdown
-![Profile Views](https://your-deployment.vercel.app/api/views?username=0xGI0)
+![Profile Views](https://your-deployment.vercel.app/api/views?username=your-github-username)
 ```
 
 ## API
@@ -113,10 +113,10 @@ your allowed username:
 
 **Examples:**
 ```
-https://profile-viewer-nu.vercel.app/api/views?username=0xGI0
-https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&mode=symbols
-https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&icon=ring
-https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&mode=symbols&icon=ring
+https://your-deployment.vercel.app/api/views?username=your-github-username
+https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols
+https://your-deployment.vercel.app/api/views?username=your-github-username&icon=ring
+https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols&icon=ring
 ```
 
 Returns an SVG badge.
