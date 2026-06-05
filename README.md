@@ -22,7 +22,7 @@ This badge supports exactly two modes, selected via the `mode` query parameter:
 | Mode | Parameter | What it shows |
 |------|-----------|---------------|
 | **Counter** | `mode=counter` (default) | The real view count as a number |
-| **Symbols** | `mode=symbols` | Random runes / hieroglyphs / glitch symbols, freshly generated on every load |
+| **Symbols** | `mode=symbols` | Random glitch / geometric / Greek / math symbols, freshly generated on every load |
 
 In **both** modes the real view count is tracked in the background — the symbol
 mode simply hides the number behind random symbols.

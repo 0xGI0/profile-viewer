@@ -94,7 +94,7 @@ function generateCounterBadge(count) {
 }
 
 // ---------------------------------------------------------------------------
-// Mode 2: random symbols (runes / hieroglyphs / glitch) on every load.
+// Mode 2: random glitch / geometric / Greek / math symbols on every load.
 // The view count is still tracked in the background, it is just not shown.
 // ---------------------------------------------------------------------------
 function generateSymbolBadge(/* count */) {
@@ -151,39 +151,29 @@ function generateSymbolBadge(/* count */) {
     `;
 }
 
-// Build a random string mixing runes, Egyptian hieroglyphs and glitch symbols.
-function buildSymbolString(n) {
-    // "Glitchy" geometric / block symbols that render well across fonts.
-    const glitch = [
-        0x2591, 0x2592, 0x2593, 0x2588, 0x25A0, 0x25C6, 0x25CF,
-        0x2620, 0x2042, 0x2425, 0x2426, 0x269B, 0x2622, 0x2748,
-    ];
+// Curated symbols that are present in the default fonts on virtually every
+// platform (Windows / macOS / Linux / mobile). These avoid the "tofu" boxes
+// that occur with rarely-installed fonts (e.g. runes / Egyptian hieroglyphs).
+const SAFE_SYMBOLS = [
+    // Block / glitch elements
+    '░', '▒', '▓', '█', '▄', '▀', '▌', '▐', '▚', '▞', '▙', '▟', '▛', '▜', '▖', '▗',
+    // Geometric shapes
+    '■', '□', '▢', '▣', '▤', '▥', '▦', '▧', '▨', '▩', '◆', '◇', '◈', '●', '○',
+    '◐', '◑', '◒', '◓', '◢', '◣', '◤', '◥', '★', '☆', '▲', '△', '▶', '▼', '◀',
+    // Box drawing
+    '╳', '╋', '╬', '║', '═', '╔', '╗', '╚', '╝', '╠', '╣', '╦', '╩', '┃', '━',
+    // Greek letters (mystical / cipher vibe)
+    'Σ', 'Δ', 'Ω', 'Φ', 'Ψ', 'Ξ', 'Λ', 'Θ', 'Π', 'Γ',
+    'α', 'β', 'γ', 'δ', 'λ', 'σ', 'φ', 'ψ', 'ω', 'ξ', 'π', 'μ', 'τ',
+    // Math operators
+    '∆', '∇', '∑', '∏', '√', '∞', '≈', '≠', '⊕', '⊗', '⊥', '∴', '∵', '∫',
+];
 
+// Build a random string from the universally-supported symbol set above.
+function buildSymbolString(n) {
     let out = '';
     for (let i = 0; i < n; i++) {
-        const pool = Math.floor(Math.random() * 3);
-        let cp;
-        if (pool === 0) {
-            // Runic block (Elder Futhark and friends) — very widely supported.
-            cp = 0x16A0 + Math.floor(Math.random() * (0x16F1 - 0x16A0));
-        } else if (pool === 1) {
-            // Egyptian hieroglyphs.
-            cp = 0x13000 + Math.floor(Math.random() * (0x1342F - 0x13000));
-        } else {
-            cp = glitch[Math.floor(Math.random() * glitch.length)];
-        }
-
-        let ch = String.fromCodePoint(cp);
-
-        // Occasionally stack combining marks for an extra glitch/zalgo look.
-        if (Math.random() < 0.3) {
-            const marks = 1 + Math.floor(Math.random() * 2);
-            for (let m = 0; m < marks; m++) {
-                ch += String.fromCodePoint(0x0300 + Math.floor(Math.random() * 0x70));
-            }
-        }
-
-        out += ch;
+        out += SAFE_SYMBOLS[Math.floor(Math.random() * SAFE_SYMBOLS.length)];
     }
     return out;
 }
