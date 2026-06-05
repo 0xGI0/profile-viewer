@@ -35,6 +35,24 @@ mode simply hides the number behind random symbols.
 ![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&mode=symbols)
 ```
 
+### Animated icon
+
+The animated icon left of the label can be switched with the `icon` parameter
+(works in both modes):
+
+| Icon | Parameter | Look |
+|------|-----------|------|
+| **Rainbow eye** | `icon=eye` (default) | An eye whose colour cycles through the rainbow; the pupil looks around |
+| **Spinning ring** | `icon=ring` | A rainbow ring that spins like a loader |
+
+```markdown
+<!-- Counter with the spinning rainbow ring -->
+![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&icon=ring)
+
+<!-- Symbols mode with the spinning ring -->
+![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&mode=symbols&icon=ring)
+```
+
 ## Username lock
 
 The counter only responds to **one** username. Any other value of `username`
@@ -91,11 +109,14 @@ your allowed username:
 |-----------|----------|---------|-------------|
 | `username` | ✅ | – | Must match `ALLOWED_USERNAME`, otherwise an `Access denied` badge is returned |
 | `mode` | ❌ | `counter` | `counter` for the number, `symbols` for random symbols |
+| `icon` | ❌ | `eye` | `eye` for the rainbow eye, `ring` for the spinning rainbow ring |
 
 **Examples:**
 ```
 https://profile-viewer-nu.vercel.app/api/views?username=0xGI0
 https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&mode=symbols
+https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&icon=ring
+https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&mode=symbols&icon=ring
 ```
 
 Returns an SVG badge.
