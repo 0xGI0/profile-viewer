@@ -5,7 +5,9 @@
 const ALLOWED_USERNAME = (process.env.ALLOWED_USERNAME || '0xGI0').trim();
 
 export default async function handler(req, res) {
-    const { username, mode = 'counter' } = req.query;
+    const { username } = req.query;
+    // Display mode: 'counter' (number) or 'symbols' (random symbols).
+    const mode = req.query.mode === 'symbols' ? 'symbols' : 'counter';
     // Animated icon left of the label: 'eye' (rainbow eye) or 'ring' (spinner).
     const icon = req.query.icon === 'ring' ? 'ring' : 'eye';
 
@@ -20,8 +22,8 @@ export default async function handler(req, res) {
     }
 
     try {
-        // The real view count is always tracked, in both modes.
-        const views = await incrementViews(ALLOWED_USERNAME);
+        // Each mode keeps its own count (separate Redis keys, same database).
+        const views = await incrementViews(ALLOWED_USERNAME, mode);
         const svg = mode === 'symbols'
             ? generateSymbolBadge(icon)
             : generateCounterBadge(views, icon);
@@ -32,7 +34,16 @@ export default async function handler(req, res) {
     }
 }
 
-async function incrementViews(username) {
+// Each display mode gets its own counter (separate keys in the same Upstash
+// database). The default counter keeps the original key so its accumulated
+// history is preserved; other modes get a per-mode suffix.
+function viewsKey(username, mode) {
+    return mode === 'counter'
+        ? `profile:views:${username}`
+        : `profile:views:${username}:${mode}`;
+}
+
+async function incrementViews(username, mode) {
     const url = process.env.UPSTASH_REDIS_REST_URL;
     const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
@@ -40,7 +51,7 @@ async function incrementViews(username) {
         throw new Error('Redis credentials not configured');
     }
 
-    const key = `profile:views:${username}`;
+    const key = viewsKey(username, mode);
 
     const response = await fetch(`${url}/incr/${key}`, {
         headers: {
