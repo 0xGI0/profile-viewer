@@ -86,7 +86,7 @@ cd profile-viewer
 ```env
 UPSTASH_REDIS_REST_URL=your-upstash-url
 UPSTASH_REDIS_REST_TOKEN=your-upstash-token
-ALLOWED_USERNAME=0xGI0
+ALLOWED_USERNAME=your-github-username
 ```
 
 4. Deploy!
