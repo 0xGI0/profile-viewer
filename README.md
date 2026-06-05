@@ -1,29 +1,54 @@
 # Profile Viewer 👁️
 
-A simple, self-hosted GitHub profile view counter with Redis backend.
+A simple, self-hosted GitHub profile view counter with a Redis backend.
+Locked to a single username and available in two display modes.
 
-![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=QG1o&t=${Date.now()})
+![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&t=${Date.now()})
 
 ## Features
 
 - 🚀 Serverless deployment on Vercel
 - 📊 View counter with Upstash Redis
 - 🎨 SVG badge generation
-- 🔒 Privacy-friendly (no personal data stored)
+- 🔒 Locked to a single username (no arbitrary usernames)
+- 🔮 Two display modes: a plain counter or random symbols
+- 🛡️ Privacy-friendly (no personal data stored)
 - ⚡ Fast and lightweight
 
-## Demo
+## Modes
 
-Add to your GitHub profile:
+This badge supports exactly two modes, selected via the `mode` query parameter:
+
+| Mode | Parameter | What it shows |
+|------|-----------|---------------|
+| **Counter** | `mode=counter` (default) | The real view count as a number |
+| **Symbols** | `mode=symbols` | Random runes / hieroglyphs / glitch symbols, freshly generated on every load |
+
+In **both** modes the real view count is tracked in the background — the symbol
+mode simply hides the number behind random symbols.
+
 ```markdown
-![Profile Views](https://your-deployment.vercel.app/api/views?username=YourUsername)
+<!-- Normal counter -->
+![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0)
+
+<!-- Random symbols on every load -->
+![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&mode=symbols)
 ```
+
+## Username lock
+
+The counter only responds to **one** username. Any other value of `username`
+returns an `Access denied` badge instead of a counter.
+
+The allowed username is read from the `ALLOWED_USERNAME` environment variable
+and defaults to `0xGI0`. To change it, update that variable in your Vercel
+project settings — no code change required. The match is case-insensitive.
 
 ## Setup
 
 ### 1. Fork & Clone
 ```bash
-git clone https://github.com/YourUsername/profile-viewer.git
+git clone https://github.com/0xGI0/profile-viewer.git
 cd profile-viewer
 ```
 
@@ -43,15 +68,17 @@ cd profile-viewer
 ```env
 UPSTASH_REDIS_REST_URL=your-upstash-url
 UPSTASH_REDIS_REST_TOKEN=your-upstash-token
+ALLOWED_USERNAME=0xGI0
 ```
 
 4. Deploy!
 
 ### 4. Use in Your Profile
 
-Replace `your-deployment.vercel.app` with your Vercel domain:
+Replace `profile-viewer-nu.vercel.app` with your own Vercel domain and use
+your allowed username:
 ```markdown
-![Profile Views](https://your-deployment.vercel.app/api/views?username=YourUsername)
+![Profile Views](https://your-deployment.vercel.app/api/views?username=0xGI0)
 ```
 
 ## API
@@ -59,14 +86,19 @@ Replace `your-deployment.vercel.app` with your Vercel domain:
 ### `GET /api/views`
 
 **Parameters:**
-- `username` (required) - GitHub username to track
 
-**Example:**
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `username` | ✅ | – | Must match `ALLOWED_USERNAME`, otherwise an `Access denied` badge is returned |
+| `mode` | ❌ | `counter` | `counter` for the number, `symbols` for random symbols |
+
+**Examples:**
 ```
-https://your-deployment.vercel.app/api/views?username=QG1o
+https://profile-viewer-nu.vercel.app/api/views?username=0xGI0
+https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&mode=symbols
 ```
 
-Returns an SVG badge with the view count.
+Returns an SVG badge.
 
 ## Privacy
 
@@ -92,4 +124,4 @@ Contributions welcome! Feel free to open issues or pull requests.
 
 ---
 
-Made with ❤️ by [QG1o](https://github.com/QG1o)
+Made with ❤️ by [0xGI0](https://github.com/0xGI0)
