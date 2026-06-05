@@ -6,6 +6,8 @@ const ALLOWED_USERNAME = (process.env.ALLOWED_USERNAME || '0xGI0').trim();
 
 export default async function handler(req, res) {
     const { username, mode = 'counter' } = req.query;
+    // Animated icon left of the label: 'eye' (rainbow eye) or 'ring' (spinner).
+    const icon = req.query.icon === 'ring' ? 'ring' : 'eye';
 
     res.setHeader('Content-Type', 'image/svg+xml');
     res.setHeader('Cache-Control', 'max-age=0, no-cache, no-store, must-revalidate');
@@ -21,12 +23,12 @@ export default async function handler(req, res) {
         // The real view count is always tracked, in both modes.
         const views = await incrementViews(ALLOWED_USERNAME);
         const svg = mode === 'symbols'
-            ? generateSymbolBadge(views)
-            : generateCounterBadge(views);
+            ? generateSymbolBadge(icon)
+            : generateCounterBadge(views, icon);
         return res.status(200).send(svg);
     } catch (error) {
         console.error('Error:', error);
-        return res.status(200).send(generateCounterBadge(0));
+        return res.status(200).send(generateCounterBadge(0, icon));
     }
 }
 
@@ -51,9 +53,67 @@ async function incrementViews(username) {
 }
 
 // ---------------------------------------------------------------------------
+// Animated icon (left of the label). Selectable via ?icon=
+//   eye  -> rainbow eye whose colour cycles, pupil looks around (default)
+//   ring -> rainbow ring that spins like a loader
+// Returns the <defs> snippet and the <g> body to drop into a badge.
+// ---------------------------------------------------------------------------
+function renderIcon(icon) {
+    if (icon === 'ring') {
+        return {
+            defs: `
+            <linearGradient id="ringgrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff3b3b"/>
+            <stop offset="25%" stop-color="#ffe02c"/>
+            <stop offset="50%" stop-color="#3bd16f"/>
+            <stop offset="75%" stop-color="#2cb6ff"/>
+            <stop offset="100%" stop-color="#9a6bff"/>
+            </linearGradient>`,
+            body: `
+            <g transform="translate(12, 9)">
+            <g>
+            <circle cx="5" cy="5" r="5.5" fill="none" stroke="url(#ringgrad)" stroke-width="2"
+                    stroke-linecap="round" stroke-dasharray="21 12"/>
+            <animateTransform attributeName="transform" type="rotate"
+                    from="0 5 5" to="360 5 5" dur="2.4s" repeatCount="indefinite"/>
+            </g>
+            </g>`,
+        };
+    }
+
+    // Default: rainbow eye.
+    return {
+        defs: `
+        <style>
+        .rainbow { animation: rainbow 5s linear infinite; }
+        .rainbow-pupil { animation: rainbow 5s linear infinite, lookAround 3s ease-in-out infinite; }
+        @keyframes rainbow {
+            0%   { stroke:#ff3b3b; fill:#ff3b3b; }
+            17%  { stroke:#ff9e2c; fill:#ff9e2c; }
+            33%  { stroke:#ffe02c; fill:#ffe02c; }
+            50%  { stroke:#3bd16f; fill:#3bd16f; }
+            67%  { stroke:#2cb6ff; fill:#2cb6ff; }
+            83%  { stroke:#9a6bff; fill:#9a6bff; }
+            100% { stroke:#ff3b3b; fill:#ff3b3b; }
+        }
+        @keyframes lookAround {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+        </style>`,
+        body: `
+        <g transform="translate(12, 9)">
+        <ellipse class="rainbow" cx="5" cy="5" rx="6" ry="4" fill="none" stroke="#ff3b3b" stroke-width="1.5"/>
+        <circle class="rainbow-pupil" cx="5" cy="5" r="2" fill="#ff3b3b"/>
+        </g>`,
+    };
+}
+
+// ---------------------------------------------------------------------------
 // Mode 1: normal counter
 // ---------------------------------------------------------------------------
-function generateCounterBadge(count) {
+function generateCounterBadge(count, icon) {
     const countStr = count.toLocaleString();
     const textWidth = countStr.length * 8;
     const width = 160 + textWidth;
@@ -61,6 +121,7 @@ function generateCounterBadge(count) {
     const bgColor = '#1a1b26';
     const accentColor = '#7aa2f7';
     const textColor = '#a9b1d6';
+    const ic = renderIcon(icon);
 
     return `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="28" viewBox="0 0 ${width} 28">
@@ -69,23 +130,13 @@ function generateCounterBadge(count) {
     <stop offset="0%" style="stop-color:${accentColor};stop-opacity:0.8" />
     <stop offset="100%" style="stop-color:${accentColor};stop-opacity:1" />
     </linearGradient>
-    <style>
-    .eye-pupil { animation: lookAround 3s ease-in-out infinite; }
-    @keyframes lookAround {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-2px); }
-        75% { transform: translateX(2px); }
-    }
-    </style>
+    ${ic.defs}
     </defs>
 
     <rect width="${width}" height="28" rx="14" fill="${bgColor}"/>
     <rect x="2" y="2" width="${width - 4}" height="24" rx="12" fill="url(#grad)" opacity="0.1"/>
 
-    <g transform="translate(12, 9)">
-    <ellipse cx="5" cy="5" rx="6" ry="4" fill="none" stroke="${accentColor}" stroke-width="1.5"/>
-    <circle class="eye-pupil" cx="5" cy="5" r="2" fill="${accentColor}"/>
-    </g>
+    ${ic.body}
 
     <text x="28" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="${textColor}">Profile Views</text>
     <text x="${width - 15}" y="18" text-anchor="end" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${accentColor}">${countStr}</text>
@@ -97,10 +148,11 @@ function generateCounterBadge(count) {
 // Mode 2: random glitch / geometric / Greek / math symbols on every load.
 // The view count is still tracked in the background, it is just not shown.
 // ---------------------------------------------------------------------------
-function generateSymbolBadge(/* count */) {
+function generateSymbolBadge(icon) {
     const bgColor = '#1a1b26';
     const accentColor = '#7aa2f7';
     const textColor = '#a9b1d6';
+    const ic = renderIcon(icon);
 
     const symbolCount = 5 + Math.floor(Math.random() * 3); // 5..7 symbols
     const symbols = escapeXml(buildSymbolString(symbolCount));
@@ -119,12 +171,6 @@ function generateSymbolBadge(/* count */) {
     <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
     <style>
-    .eye-pupil { animation: lookAround 3s ease-in-out infinite; }
-    @keyframes lookAround {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-2px); }
-        75% { transform: translateX(2px); }
-    }
     .glyphs { animation: flicker 2.4s steps(2, jump-none) infinite; }
     @keyframes flicker {
         0%, 100% { opacity: 1; }
@@ -133,15 +179,13 @@ function generateSymbolBadge(/* count */) {
         53% { opacity: 0.9; }
     }
     </style>
+    ${ic.defs}
     </defs>
 
     <rect width="${width}" height="28" rx="14" fill="${bgColor}"/>
     <rect x="2" y="2" width="${width - 4}" height="24" rx="12" fill="url(#grad)" opacity="0.12"/>
 
-    <g transform="translate(12, 9)">
-    <ellipse cx="5" cy="5" rx="6" ry="4" fill="none" stroke="${accentColor}" stroke-width="1.5"/>
-    <circle class="eye-pupil" cx="5" cy="5" r="2" fill="${accentColor}"/>
-    </g>
+    ${ic.body}
 
     <text x="28" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="${textColor}">Profile Views</text>
     <text class="glyphs" x="${width - 14}" y="19" text-anchor="end" filter="url(#glow)"
