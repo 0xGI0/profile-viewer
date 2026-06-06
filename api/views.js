@@ -207,13 +207,16 @@ function renderTextEffect(effect, fallbackColor) {
 function generateCounterBadge(count, icon, effect) {
     const countStr = count.toLocaleString();
     const textWidth = countStr.length * 8;
-    const width = 160 + textWidth;
 
     const bgColor = '#1a1b26';
     const accentColor = '#7aa2f7';
     const textColor = '#a9b1d6';
     const ic = renderIcon(icon);
     const fx = renderTextEffect(effect, accentColor);
+
+    // Extra room so the blinking cursor has a space after it before the edge.
+    const cursorPad = fx.hasCursor ? 10 : 0;
+    const width = 160 + textWidth + cursorPad;
 
     return `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="28" viewBox="0 0 ${width} 28">
@@ -232,8 +235,8 @@ function generateCounterBadge(count, icon, effect) {
     ${ic.body}
 
     <text x="28" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="${textColor}">Profile Views</text>
-    <text class="${fx.className}" x="${width - 15}" y="18" text-anchor="end" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${fx.fill}">${countStr}</text>
-    ${fx.hasCursor ? `<g class="fx-blink"><text class="fx-rainbow" x="${width - 13}" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="#ff3b3b">_</text></g>` : ''}
+    <text class="${fx.className}" x="${width - 15 - cursorPad}" y="18" text-anchor="end" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${fx.fill}">${countStr}</text>
+    ${fx.hasCursor ? `<g class="fx-blink"><text class="fx-rainbow" x="${width - 13 - cursorPad}" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="#ff3b3b">_</text></g>` : ''}
     </svg>
     `;
 }
@@ -252,7 +255,9 @@ function generateSymbolBadge(icon, effect) {
     const symbolCount = 5 + Math.floor(Math.random() * 3); // 5..7 symbols
     const symbols = escapeXml(buildSymbolString(symbolCount));
 
-    const width = 130 + symbolCount * 22;
+    // Extra room so the blinking cursor has a space after it before the edge.
+    const cursorPad = fx.hasCursor ? 10 : 0;
+    const width = 130 + symbolCount * 22 + cursorPad;
 
     return `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="28" viewBox="0 0 ${width} 28">
@@ -284,10 +289,10 @@ function generateSymbolBadge(icon, effect) {
     ${ic.body}
 
     <text x="28" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="${textColor}">Profile Views</text>
-    <text class="glyphs ${fx.className}" x="${width - 14}" y="19" text-anchor="end" filter="url(#glow)"
+    <text class="glyphs ${fx.className}" x="${width - 14 - cursorPad}" y="19" text-anchor="end" filter="url(#glow)"
           font-family="'Noto Sans Symbols', 'Segoe UI Symbol', 'Apple Symbols', monospace"
           font-size="15" letter-spacing="3" fill="${fx.fill}">${symbols}</text>
-    ${fx.hasCursor ? `<g class="fx-blink"><text class="fx-rainbow" x="${width - 12}" y="19" font-family="'Segoe UI', Arial, sans-serif" font-size="15" font-weight="bold" fill="#ff3b3b">_</text></g>` : ''}
+    ${fx.hasCursor ? `<g class="fx-blink"><text class="fx-rainbow" x="${width - 12 - cursorPad}" y="19" font-family="'Segoe UI', Arial, sans-serif" font-size="15" font-weight="bold" fill="#ff3b3b">_</text></g>` : ''}
     </svg>
     `;
 }
