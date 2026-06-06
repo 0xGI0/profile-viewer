@@ -191,15 +191,14 @@ function renderTextEffect(effect, fallbackColor) {
 
     if (effect === 'terminal') {
         const green = '#9ece6a';
+        // Blink via SMIL (works when the badge is rendered as an <img>, where
+        // CSS animations on a <tspan> are often ignored). Discrete on/off.
         return {
-            defs: `
-            <style>
-            .fx-cursor { animation: fxBlink 0.5s step-end infinite; }
-            @keyframes fxBlink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
-            </style>`,
+            defs: '',
             className: '',
             fill: green,
-            suffix: `<tspan class="fx-cursor" dx="2" fill="${green}">_</tspan>`,
+            suffix: `<tspan dx="2" fill="${green}">_<animate attributeName="opacity" `
+                + `values="1;0" dur="0.5s" calcMode="discrete" repeatCount="indefinite"/></tspan>`,
         };
     }
 
