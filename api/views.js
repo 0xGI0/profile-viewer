@@ -140,7 +140,8 @@ function renderIcon(icon) {
 //   terminal -> terminal-green value followed by a blinking underscore cursor
 //   none     -> plain accent colour (default)
 // Returns the <defs> snippet, a CSS class to add, the fill to use and an
-// optional suffix injected at the end of the value text.
+// optional cursorColor (when set, the badge draws a blinking cursor after the
+// value as its own <text> element).
 // ---------------------------------------------------------------------------
 function renderTextEffect(effect, fallbackColor) {
     if (effect === 'rainbow') {
@@ -160,7 +161,7 @@ function renderTextEffect(effect, fallbackColor) {
             </style>`,
             className: 'fx-rainbow',
             fill: '#ff3b3b',
-            suffix: '',
+            cursorColor: '',
         };
     }
 
@@ -185,24 +186,30 @@ function renderTextEffect(effect, fallbackColor) {
             </style>`,
             className: '',
             fill: 'url(#textgrad)',
-            suffix: '',
+            cursorColor: '',
         };
     }
 
     if (effect === 'terminal') {
         const green = '#9ece6a';
-        // Blink via SMIL (works when the badge is rendered as an <img>, where
-        // CSS animations on a <tspan> are often ignored). Discrete on/off.
+        // The cursor is drawn as its own <text> element (see the badges) and
+        // blinks via a plain CSS opacity keyframe — the exact mechanism the
+        // symbol flicker uses, which works when the badge renders as an <img>.
+        // (CSS on <tspan>, SMIL and stop-color animation are all unreliable
+        // there, so they are avoided.)
         return {
-            defs: '',
+            defs: `
+            <style>
+            .fx-cursor { animation: fxBlink 0.8s infinite; }
+            @keyframes fxBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+            </style>`,
             className: '',
             fill: green,
-            suffix: `<tspan dx="2" fill="${green}">_<animate attributeName="opacity" `
-                + `values="1;0" keyTimes="0;0.5" dur="0.7s" calcMode="discrete" repeatCount="indefinite"/></tspan>`,
+            cursorColor: green,
         };
     }
 
-    return { defs: '', className: '', fill: fallbackColor, suffix: '' };
+    return { defs: '', className: '', fill: fallbackColor, cursorColor: '' };
 }
 
 // ---------------------------------------------------------------------------
@@ -236,7 +243,8 @@ function generateCounterBadge(count, icon, effect) {
     ${ic.body}
 
     <text x="28" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="${textColor}">Profile Views</text>
-    <text class="${fx.className}" x="${width - 15}" y="18" text-anchor="end" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${fx.fill}">${countStr}${fx.suffix}</text>
+    <text class="${fx.className}" x="${width - 15}" y="18" text-anchor="end" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${fx.fill}">${countStr}</text>
+    ${fx.cursorColor ? `<text class="fx-cursor" x="${width - 13}" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${fx.cursorColor}">_</text>` : ''}
     </svg>
     `;
 }
@@ -289,7 +297,8 @@ function generateSymbolBadge(icon, effect) {
     <text x="28" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="${textColor}">Profile Views</text>
     <text class="glyphs ${fx.className}" x="${width - 14}" y="19" text-anchor="end" filter="url(#glow)"
           font-family="'Noto Sans Symbols', 'Segoe UI Symbol', 'Apple Symbols', monospace"
-          font-size="15" letter-spacing="3" fill="${fx.fill}">${symbols}${fx.suffix}</text>
+          font-size="15" letter-spacing="3" fill="${fx.fill}">${symbols}</text>
+    ${fx.cursorColor ? `<text class="fx-cursor" x="${width - 12}" y="19" font-family="'Segoe UI', Arial, sans-serif" font-size="15" font-weight="bold" fill="${fx.cursorColor}">_</text>` : ''}
     </svg>
     `;
 }
