@@ -194,7 +194,7 @@ function renderTextEffect(effect, fallbackColor) {
         return {
             defs: `
             <style>
-            .fx-cursor { animation: fxBlink 1.06s step-end infinite; }
+            .fx-cursor { animation: fxBlink 0.5s step-end infinite; }
             @keyframes fxBlink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
             </style>`,
             className: '',
