@@ -64,7 +64,7 @@ modes):
 |--------|-----------|------|
 | **Plain** | `effect=none` (default) | Static blue accent colour |
 | **Rainbow** | `effect=rainbow` | The value cycles through the rainbow (animated) |
-| **Gradient** | `effect=gradient` | A static blue → purple gradient across the value |
+| **Gradient** | `effect=gradient` | A static high-contrast turquoise → blue → pink gradient across the value |
 
 ```markdown
 <!-- Animated rainbow number -->
@@ -131,7 +131,7 @@ your allowed username:
 | `username` | ✅ | – | Must match `ALLOWED_USERNAME`, otherwise an `Access denied` badge is returned |
 | `mode` | ❌ | `counter` | `counter` for the number, `symbols` for random symbols |
 | `icon` | ❌ | `eye` | `eye` for the rainbow eye, `ring` for the spinning rainbow ring |
-| `effect` | ❌ | `none` | Colour effect on the value: `none`, `rainbow` (animated) or `gradient` (static blue→purple) |
+| `effect` | ❌ | `none` | Colour effect on the value: `none`, `rainbow` (animated) or `gradient` (static turquoise→blue→pink) |
 
 **Examples:**
 ```
