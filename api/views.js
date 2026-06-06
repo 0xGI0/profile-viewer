@@ -10,6 +10,11 @@ export default async function handler(req, res) {
     const mode = req.query.mode === 'symbols' ? 'symbols' : 'counter';
     // Animated icon left of the label: 'eye' (rainbow eye) or 'ring' (spinner).
     const icon = req.query.icon === 'ring' ? 'ring' : 'eye';
+    // Effect on the number / symbols: 'rainbow' (animated), 'gradient' (static
+    // blue->purple) or 'none' (plain accent colour, default).
+    const effect = ['rainbow', 'gradient'].includes(req.query.effect)
+        ? req.query.effect
+        : 'none';
 
     res.setHeader('Content-Type', 'image/svg+xml');
     res.setHeader('Cache-Control', 'max-age=0, no-cache, no-store, must-revalidate');
@@ -25,12 +30,12 @@ export default async function handler(req, res) {
         // Each mode keeps its own count (separate Redis keys, same database).
         const views = await incrementViews(ALLOWED_USERNAME, mode);
         const svg = mode === 'symbols'
-            ? generateSymbolBadge(icon)
-            : generateCounterBadge(views, icon);
+            ? generateSymbolBadge(icon, effect)
+            : generateCounterBadge(views, icon, effect);
         return res.status(200).send(svg);
     } catch (error) {
         console.error('Error:', error);
-        return res.status(200).send(generateCounterBadge(0, icon));
+        return res.status(200).send(generateCounterBadge(0, icon, effect));
     }
 }
 
@@ -126,9 +131,52 @@ function renderIcon(icon) {
 }
 
 // ---------------------------------------------------------------------------
+// Colour effect for the value text (number or symbols). Selectable via ?effect=
+//   rainbow  -> fill cycles through the rainbow (animated)
+//   gradient -> static blue->purple linear gradient
+//   none     -> plain accent colour (default)
+// Returns the <defs> snippet, a CSS class to add, and the fill to use.
+// ---------------------------------------------------------------------------
+function renderTextEffect(effect, fallbackColor) {
+    if (effect === 'rainbow') {
+        return {
+            defs: `
+            <style>
+            .fx-rainbow { animation: fxRainbow 5s linear infinite; }
+            @keyframes fxRainbow {
+                0%   { fill:#ff3b3b; }
+                17%  { fill:#ff9e2c; }
+                33%  { fill:#ffe02c; }
+                50%  { fill:#3bd16f; }
+                67%  { fill:#2cb6ff; }
+                83%  { fill:#9a6bff; }
+                100% { fill:#ff3b3b; }
+            }
+            </style>`,
+            className: 'fx-rainbow',
+            fill: '#ff3b3b',
+        };
+    }
+
+    if (effect === 'gradient') {
+        return {
+            defs: `
+            <linearGradient id="textgrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#7aa2f7"/>
+            <stop offset="100%" stop-color="#bb9af7"/>
+            </linearGradient>`,
+            className: '',
+            fill: 'url(#textgrad)',
+        };
+    }
+
+    return { defs: '', className: '', fill: fallbackColor };
+}
+
+// ---------------------------------------------------------------------------
 // Mode 1: normal counter
 // ---------------------------------------------------------------------------
-function generateCounterBadge(count, icon) {
+function generateCounterBadge(count, icon, effect) {
     const countStr = count.toLocaleString();
     const textWidth = countStr.length * 8;
     const width = 160 + textWidth;
@@ -137,6 +185,7 @@ function generateCounterBadge(count, icon) {
     const accentColor = '#7aa2f7';
     const textColor = '#a9b1d6';
     const ic = renderIcon(icon);
+    const fx = renderTextEffect(effect, accentColor);
 
     return `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="28" viewBox="0 0 ${width} 28">
@@ -146,6 +195,7 @@ function generateCounterBadge(count, icon) {
     <stop offset="100%" style="stop-color:${accentColor};stop-opacity:1" />
     </linearGradient>
     ${ic.defs}
+    ${fx.defs}
     </defs>
 
     <rect width="${width}" height="28" rx="14" fill="${bgColor}"/>
@@ -154,7 +204,7 @@ function generateCounterBadge(count, icon) {
     ${ic.body}
 
     <text x="28" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="${textColor}">Profile Views</text>
-    <text x="${width - 15}" y="18" text-anchor="end" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${accentColor}">${countStr}</text>
+    <text class="${fx.className}" x="${width - 15}" y="18" text-anchor="end" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${fx.fill}">${countStr}</text>
     </svg>
     `;
 }
@@ -163,11 +213,12 @@ function generateCounterBadge(count, icon) {
 // Mode 2: random glitch / geometric / Greek / math symbols on every load.
 // The view count is still tracked in the background, it is just not shown.
 // ---------------------------------------------------------------------------
-function generateSymbolBadge(icon) {
+function generateSymbolBadge(icon, effect) {
     const bgColor = '#1a1b26';
     const accentColor = '#7aa2f7';
     const textColor = '#a9b1d6';
     const ic = renderIcon(icon);
+    const fx = renderTextEffect(effect, accentColor);
 
     const symbolCount = 5 + Math.floor(Math.random() * 3); // 5..7 symbols
     const symbols = escapeXml(buildSymbolString(symbolCount));
@@ -195,6 +246,7 @@ function generateSymbolBadge(icon) {
     }
     </style>
     ${ic.defs}
+    ${fx.defs}
     </defs>
 
     <rect width="${width}" height="28" rx="14" fill="${bgColor}"/>
@@ -203,9 +255,9 @@ function generateSymbolBadge(icon) {
     ${ic.body}
 
     <text x="28" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="${textColor}">Profile Views</text>
-    <text class="glyphs" x="${width - 14}" y="19" text-anchor="end" filter="url(#glow)"
+    <text class="glyphs ${fx.className}" x="${width - 14}" y="19" text-anchor="end" filter="url(#glow)"
           font-family="'Noto Sans Symbols', 'Segoe UI Symbol', 'Apple Symbols', monospace"
-          font-size="15" letter-spacing="3" fill="${accentColor}">${symbols}</text>
+          font-size="15" letter-spacing="3" fill="${fx.fill}">${symbols}</text>
     </svg>
     `;
 }

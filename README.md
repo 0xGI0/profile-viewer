@@ -55,6 +55,25 @@ The animated icon left of the label can be switched with the `icon` parameter
 ![Profile Views](https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols&icon=ring)
 ```
 
+### Colour effect on the value
+
+The number / symbols can be coloured with the `effect` parameter (works in both
+modes):
+
+| Effect | Parameter | Look |
+|--------|-----------|------|
+| **Plain** | `effect=none` (default) | Static blue accent colour |
+| **Rainbow** | `effect=rainbow` | The value cycles through the rainbow (animated) |
+| **Gradient** | `effect=gradient` | A static blue → purple gradient across the value |
+
+```markdown
+<!-- Animated rainbow number -->
+![Profile Views](https://your-deployment.vercel.app/api/views?username=your-github-username&effect=rainbow)
+
+<!-- Static blue->purple gradient on the symbols -->
+![Profile Views](https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols&effect=gradient)
+```
+
 ## Username lock
 
 The counter only responds to **one** username. Any other value of `username`
@@ -112,6 +131,7 @@ your allowed username:
 | `username` | ✅ | – | Must match `ALLOWED_USERNAME`, otherwise an `Access denied` badge is returned |
 | `mode` | ❌ | `counter` | `counter` for the number, `symbols` for random symbols |
 | `icon` | ❌ | `eye` | `eye` for the rainbow eye, `ring` for the spinning rainbow ring |
+| `effect` | ❌ | `none` | Colour effect on the value: `none`, `rainbow` (animated) or `gradient` (static blue→purple) |
 
 **Examples:**
 ```
@@ -119,6 +139,8 @@ https://your-deployment.vercel.app/api/views?username=your-github-username
 https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols
 https://your-deployment.vercel.app/api/views?username=your-github-username&icon=ring
 https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols&icon=ring
+https://your-deployment.vercel.app/api/views?username=your-github-username&effect=rainbow
+https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols&effect=gradient
 ```
 
 Returns an SVG badge.
