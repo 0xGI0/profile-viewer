@@ -198,7 +198,7 @@ function renderTextEffect(effect, fallbackColor) {
             className: '',
             fill: green,
             suffix: `<tspan dx="2" fill="${green}">_<animate attributeName="opacity" `
-                + `values="1;0" dur="0.5s" calcMode="discrete" repeatCount="indefinite"/></tspan>`,
+                + `values="1;0" keyTimes="0;0.5" dur="0.7s" calcMode="discrete" repeatCount="indefinite"/></tspan>`,
         };
     }
 
