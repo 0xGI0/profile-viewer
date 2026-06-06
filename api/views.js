@@ -10,9 +10,9 @@ export default async function handler(req, res) {
     const mode = req.query.mode === 'symbols' ? 'symbols' : 'counter';
     // Animated icon left of the label: 'eye' (rainbow eye) or 'ring' (spinner).
     const icon = req.query.icon === 'ring' ? 'ring' : 'eye';
-    // Effect on the number / symbols: 'rainbow' (animated), 'gradient' (static
-    // blue->purple) or 'none' (plain accent colour, default).
-    const effect = ['rainbow', 'gradient'].includes(req.query.effect)
+    // Effect on the number / symbols: 'rainbow' (animated), 'terminal' (green
+    // value with a blinking cursor) or 'none' (plain accent colour, default).
+    const effect = ['rainbow', 'terminal'].includes(req.query.effect)
         ? req.query.effect
         : 'none';
 
@@ -133,9 +133,10 @@ function renderIcon(icon) {
 // ---------------------------------------------------------------------------
 // Colour effect for the value text (number or symbols). Selectable via ?effect=
 //   rainbow  -> fill cycles through the rainbow (animated)
-//   gradient -> static high-contrast turquoise->pink linear gradient
+//   terminal -> terminal-green value with a blinking block cursor (animated)
 //   none     -> plain accent colour (default)
-// Returns the <defs> snippet, a CSS class to add, and the fill to use.
+// Returns the <defs> snippet, a CSS class to add, the fill to use and an
+// optional suffix injected at the end of the value text.
 // ---------------------------------------------------------------------------
 function renderTextEffect(effect, fallbackColor) {
     if (effect === 'rainbow') {
@@ -155,23 +156,25 @@ function renderTextEffect(effect, fallbackColor) {
             </style>`,
             className: 'fx-rainbow',
             fill: '#ff3b3b',
+            suffix: '',
         };
     }
 
-    if (effect === 'gradient') {
+    if (effect === 'terminal') {
+        const green = '#9ece6a';
         return {
             defs: `
-            <linearGradient id="textgrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#2ee6c4"/>
-            <stop offset="50%" stop-color="#41a6ff"/>
-            <stop offset="100%" stop-color="#ff5fbf"/>
-            </linearGradient>`,
+            <style>
+            .fx-cursor { animation: fxBlink 1.06s steps(1) infinite; }
+            @keyframes fxBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+            </style>`,
             className: '',
-            fill: 'url(#textgrad)',
+            fill: green,
+            suffix: `<tspan class="fx-cursor" dx="2" fill="${green}">▋</tspan>`,
         };
     }
 
-    return { defs: '', className: '', fill: fallbackColor };
+    return { defs: '', className: '', fill: fallbackColor, suffix: '' };
 }
 
 // ---------------------------------------------------------------------------
@@ -205,7 +208,7 @@ function generateCounterBadge(count, icon, effect) {
     ${ic.body}
 
     <text x="28" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="${textColor}">Profile Views</text>
-    <text class="${fx.className}" x="${width - 15}" y="18" text-anchor="end" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${fx.fill}">${countStr}</text>
+    <text class="${fx.className}" x="${width - 15}" y="18" text-anchor="end" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${fx.fill}">${countStr}${fx.suffix}</text>
     </svg>
     `;
 }
@@ -258,7 +261,7 @@ function generateSymbolBadge(icon, effect) {
     <text x="28" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="${textColor}">Profile Views</text>
     <text class="glyphs ${fx.className}" x="${width - 14}" y="19" text-anchor="end" filter="url(#glow)"
           font-family="'Noto Sans Symbols', 'Segoe UI Symbol', 'Apple Symbols', monospace"
-          font-size="15" letter-spacing="3" fill="${fx.fill}">${symbols}</text>
+          font-size="15" letter-spacing="3" fill="${fx.fill}">${symbols}${fx.suffix}</text>
     </svg>
     `;
 }
