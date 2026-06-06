@@ -10,9 +10,9 @@ export default async function handler(req, res) {
     const mode = req.query.mode === 'symbols' ? 'symbols' : 'counter';
     // Animated icon left of the label: 'eye' (rainbow eye) or 'ring' (spinner).
     const icon = req.query.icon === 'ring' ? 'ring' : 'eye';
-    // Effect on the number / symbols: 'rainbow' (animated), 'gradient' (an
-    // animated flowing gradient), 'terminal' (green value + blinking underscore)
-    // or 'none' (plain accent colour, default).
+    // Effect on the number / symbols: 'rainbow' (cycling rainbow value with a
+    // blinking cursor; 'terminal' is an alias), 'gradient' (an animated flowing
+    // gradient) or 'none' (plain accent colour, default).
     const effect = ['rainbow', 'gradient', 'terminal'].includes(req.query.effect)
         ? req.query.effect
         : 'none';
@@ -144,11 +144,18 @@ function renderIcon(icon) {
 // value as its own <text> element).
 // ---------------------------------------------------------------------------
 function renderTextEffect(effect, fallbackColor) {
-    if (effect === 'rainbow') {
+    // 'rainbow' (and its 'terminal' alias) colours the value with a cycling
+    // rainbow and adds a blinking cursor. The value's fill cycles via the
+    // fx-rainbow class; the cursor is a rainbow <text> inside a blinking <g>
+    // (the blink animates opacity on the group, the rainbow animates fill on
+    // the text — each element runs a single CSS animation, the mechanism that
+    // works when the badge renders as an <img>).
+    if (effect === 'rainbow' || effect === 'terminal') {
         return {
             defs: `
             <style>
             .fx-rainbow { animation: fxRainbow 5s linear infinite; }
+            .fx-blink { animation: fxBlink 0.8s infinite; }
             @keyframes fxRainbow {
                 0%   { fill:#ff3b3b; }
                 17%  { fill:#ff9e2c; }
@@ -158,10 +165,11 @@ function renderTextEffect(effect, fallbackColor) {
                 83%  { fill:#9a6bff; }
                 100% { fill:#ff3b3b; }
             }
+            @keyframes fxBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
             </style>`,
             className: 'fx-rainbow',
             fill: '#ff3b3b',
-            cursorColor: '',
+            hasCursor: true,
         };
     }
 
@@ -186,30 +194,11 @@ function renderTextEffect(effect, fallbackColor) {
             </style>`,
             className: '',
             fill: 'url(#textgrad)',
-            cursorColor: '',
+            hasCursor: false,
         };
     }
 
-    if (effect === 'terminal') {
-        const green = '#9ece6a';
-        // The cursor is drawn as its own <text> element (see the badges) and
-        // blinks via a plain CSS opacity keyframe — the exact mechanism the
-        // symbol flicker uses, which works when the badge renders as an <img>.
-        // (CSS on <tspan>, SMIL and stop-color animation are all unreliable
-        // there, so they are avoided.)
-        return {
-            defs: `
-            <style>
-            .fx-cursor { animation: fxBlink 0.8s infinite; }
-            @keyframes fxBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
-            </style>`,
-            className: '',
-            fill: green,
-            cursorColor: green,
-        };
-    }
-
-    return { defs: '', className: '', fill: fallbackColor, cursorColor: '' };
+    return { defs: '', className: '', fill: fallbackColor, hasCursor: false };
 }
 
 // ---------------------------------------------------------------------------
@@ -244,7 +233,7 @@ function generateCounterBadge(count, icon, effect) {
 
     <text x="28" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="${textColor}">Profile Views</text>
     <text class="${fx.className}" x="${width - 15}" y="18" text-anchor="end" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${fx.fill}">${countStr}</text>
-    ${fx.cursorColor ? `<text class="fx-cursor" x="${width - 13}" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${fx.cursorColor}">_</text>` : ''}
+    ${fx.hasCursor ? `<g class="fx-blink"><text class="fx-rainbow" x="${width - 13}" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="#ff3b3b">_</text></g>` : ''}
     </svg>
     `;
 }
@@ -298,7 +287,7 @@ function generateSymbolBadge(icon, effect) {
     <text class="glyphs ${fx.className}" x="${width - 14}" y="19" text-anchor="end" filter="url(#glow)"
           font-family="'Noto Sans Symbols', 'Segoe UI Symbol', 'Apple Symbols', monospace"
           font-size="15" letter-spacing="3" fill="${fx.fill}">${symbols}</text>
-    ${fx.cursorColor ? `<text class="fx-cursor" x="${width - 12}" y="19" font-family="'Segoe UI', Arial, sans-serif" font-size="15" font-weight="bold" fill="${fx.cursorColor}">_</text>` : ''}
+    ${fx.hasCursor ? `<g class="fx-blink"><text class="fx-rainbow" x="${width - 12}" y="19" font-family="'Segoe UI', Arial, sans-serif" font-size="15" font-weight="bold" fill="#ff3b3b">_</text></g>` : ''}
     </svg>
     `;
 }
