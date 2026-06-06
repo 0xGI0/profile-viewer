@@ -64,14 +64,14 @@ modes):
 |--------|-----------|------|
 | **Plain** | `effect=none` (default) | Static blue accent colour |
 | **Rainbow** | `effect=rainbow` | The value cycles through the rainbow (animated) |
-| **Terminal** | `effect=terminal` | Terminal-green value with a blinking block cursor (animated) |
+| **Gradient** | `effect=gradient` | A flowing multi-colour gradient (animated) — the colours drift across the value |
 
 ```markdown
 <!-- Animated rainbow number -->
 ![Profile Views](https://your-deployment.vercel.app/api/views?username=your-github-username&effect=rainbow)
 
-<!-- Terminal-green value with a blinking cursor on the symbols -->
-![Profile Views](https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols&effect=terminal)
+<!-- Flowing animated gradient on the symbols -->
+![Profile Views](https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols&effect=gradient)
 ```
 
 ## Username lock
@@ -131,7 +131,7 @@ your allowed username:
 | `username` | ✅ | – | Must match `ALLOWED_USERNAME`, otherwise an `Access denied` badge is returned |
 | `mode` | ❌ | `counter` | `counter` for the number, `symbols` for random symbols |
 | `icon` | ❌ | `eye` | `eye` for the rainbow eye, `ring` for the spinning rainbow ring |
-| `effect` | ❌ | `none` | Colour effect on the value: `none`, `rainbow` (animated) or `terminal` (green value + blinking cursor) |
+| `effect` | ❌ | `none` | Colour effect on the value: `none`, `rainbow` (animated) or `gradient` (animated flowing gradient) |
 
 **Examples:**
 ```
@@ -140,7 +140,7 @@ https://your-deployment.vercel.app/api/views?username=your-github-username&mode=
 https://your-deployment.vercel.app/api/views?username=your-github-username&icon=ring
 https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols&icon=ring
 https://your-deployment.vercel.app/api/views?username=your-github-username&effect=rainbow
-https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols&effect=terminal
+https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols&effect=gradient
 ```
 
 Returns an SVG badge.
