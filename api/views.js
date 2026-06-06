@@ -11,8 +11,9 @@ export default async function handler(req, res) {
     // Animated icon left of the label: 'eye' (rainbow eye) or 'ring' (spinner).
     const icon = req.query.icon === 'ring' ? 'ring' : 'eye';
     // Effect on the number / symbols: 'rainbow' (animated), 'gradient' (an
-    // animated flowing gradient) or 'none' (plain accent colour, default).
-    const effect = ['rainbow', 'gradient'].includes(req.query.effect)
+    // animated flowing gradient), 'terminal' (green value + blinking underscore)
+    // or 'none' (plain accent colour, default).
+    const effect = ['rainbow', 'gradient', 'terminal'].includes(req.query.effect)
         ? req.query.effect
         : 'none';
 
@@ -136,8 +137,10 @@ function renderIcon(icon) {
 //   gradient -> a flowing multi-colour gradient (animated): each gradient stop
 //               cycles through the palette, phase-shifted, so the colours drift
 //               across the value
+//   terminal -> terminal-green value followed by a blinking underscore cursor
 //   none     -> plain accent colour (default)
-// Returns the <defs> snippet, a CSS class to add and the fill to use.
+// Returns the <defs> snippet, a CSS class to add, the fill to use and an
+// optional suffix injected at the end of the value text.
 // ---------------------------------------------------------------------------
 function renderTextEffect(effect, fallbackColor) {
     if (effect === 'rainbow') {
@@ -157,6 +160,7 @@ function renderTextEffect(effect, fallbackColor) {
             </style>`,
             className: 'fx-rainbow',
             fill: '#ff3b3b',
+            suffix: '',
         };
     }
 
@@ -169,9 +173,9 @@ function renderTextEffect(effect, fallbackColor) {
             <stop class="fx-g3" offset="100%" stop-color="#ff5fbf"/>
             </linearGradient>
             <style>
-            .fx-g1 { animation: fxFlow 4s linear infinite; }
-            .fx-g2 { animation: fxFlow 4s linear infinite; animation-delay: -1.33s; }
-            .fx-g3 { animation: fxFlow 4s linear infinite; animation-delay: -2.66s; }
+            .fx-g1 { animation: fxFlow 2s linear infinite; }
+            .fx-g2 { animation: fxFlow 2s linear infinite; animation-delay: -0.66s; }
+            .fx-g3 { animation: fxFlow 2s linear infinite; animation-delay: -1.33s; }
             @keyframes fxFlow {
                 0%   { stop-color:#2ee6c4; }
                 33%  { stop-color:#41a6ff; }
@@ -181,10 +185,25 @@ function renderTextEffect(effect, fallbackColor) {
             </style>`,
             className: '',
             fill: 'url(#textgrad)',
+            suffix: '',
         };
     }
 
-    return { defs: '', className: '', fill: fallbackColor };
+    if (effect === 'terminal') {
+        const green = '#9ece6a';
+        return {
+            defs: `
+            <style>
+            .fx-cursor { animation: fxBlink 1.06s step-end infinite; }
+            @keyframes fxBlink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+            </style>`,
+            className: '',
+            fill: green,
+            suffix: `<tspan class="fx-cursor" dx="2" fill="${green}">_</tspan>`,
+        };
+    }
+
+    return { defs: '', className: '', fill: fallbackColor, suffix: '' };
 }
 
 // ---------------------------------------------------------------------------
@@ -218,7 +237,7 @@ function generateCounterBadge(count, icon, effect) {
     ${ic.body}
 
     <text x="28" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="${textColor}">Profile Views</text>
-    <text class="${fx.className}" x="${width - 15}" y="18" text-anchor="end" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${fx.fill}">${countStr}</text>
+    <text class="${fx.className}" x="${width - 15}" y="18" text-anchor="end" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="bold" fill="${fx.fill}">${countStr}${fx.suffix}</text>
     </svg>
     `;
 }
@@ -271,7 +290,7 @@ function generateSymbolBadge(icon, effect) {
     <text x="28" y="18" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="${textColor}">Profile Views</text>
     <text class="glyphs ${fx.className}" x="${width - 14}" y="19" text-anchor="end" filter="url(#glow)"
           font-family="'Noto Sans Symbols', 'Segoe UI Symbol', 'Apple Symbols', monospace"
-          font-size="15" letter-spacing="3" fill="${fx.fill}">${symbols}</text>
+          font-size="15" letter-spacing="3" fill="${fx.fill}">${symbols}${fx.suffix}</text>
     </svg>
     `;
 }
