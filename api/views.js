@@ -133,7 +133,7 @@ function renderIcon(icon) {
 // ---------------------------------------------------------------------------
 // Colour effect for the value text (number or symbols). Selectable via ?effect=
 //   rainbow  -> fill cycles through the rainbow (animated)
-//   gradient -> static blue->purple linear gradient
+//   gradient -> static high-contrast turquoise->pink linear gradient
 //   none     -> plain accent colour (default)
 // Returns the <defs> snippet, a CSS class to add, and the fill to use.
 // ---------------------------------------------------------------------------
@@ -162,8 +162,9 @@ function renderTextEffect(effect, fallbackColor) {
         return {
             defs: `
             <linearGradient id="textgrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#7aa2f7"/>
-            <stop offset="100%" stop-color="#bb9af7"/>
+            <stop offset="0%" stop-color="#2ee6c4"/>
+            <stop offset="50%" stop-color="#41a6ff"/>
+            <stop offset="100%" stop-color="#ff5fbf"/>
             </linearGradient>`,
             className: '',
             fill: 'url(#textgrad)',
