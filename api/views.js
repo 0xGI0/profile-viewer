@@ -29,6 +29,10 @@ export default async function handler(req, res) {
     const demo = firstParam(req.query.demo) === '1';
 
     res.setHeader('Content-Type', 'image/svg+xml');
+    // Defence in depth for the case the badge URL is opened directly in a
+    // browser: no sniffing, and the SVG may only use its inline styles.
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'");
     res.setHeader('Cache-Control', 'max-age=0, no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
