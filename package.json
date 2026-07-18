@@ -1,12 +1,26 @@
 {
   "name": "profile-viewer",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Self-hosted GitHub profile view counter — an animated SVG badge backed by Upstash Redis, deployed on Vercel",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "gallery": "node scripts/generate-gallery.mjs"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "license": "MIT",
+  "author": "0xGI0 (https://github.com/0xGI0)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0xGI0/profile-viewer.git"
+  },
+  "keywords": [
+    "github",
+    "profile",
+    "views",
+    "counter",
+    "badge",
+    "svg",
+    "vercel",
+    "upstash",
+    "serverless"
+  ]
 }

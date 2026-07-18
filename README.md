@@ -1,11 +1,14 @@
-# Profile Viewer 👁️
+<div align="center">
 
-A simple, self-hosted GitHub profile view counter with a Redis backend.
+<img src="assets/logo.svg" alt="Profile Viewer" width="520"/>
+
+A simple, self-hosted GitHub profile view counter with a Redis backend.<br/>
 Locked to a single username and available in two display modes.
 
-![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&icon=ring&effect=rainbow)
-![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&mode=symbols&effect=gradient)
+![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&icon=ring&effect=rainbow&demo=1)
+![Profile Views](https://profile-viewer-nu.vercel.app/api/views?username=0xGI0&mode=symbols&effect=gradient&demo=1)
 
+</div>
 
 ## Features
 
@@ -74,10 +77,34 @@ modes):
 ![Profile Views](https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols&effect=gradient)
 ```
 
+## Gallery
+
+All 12 combinations of mode, icon and effect, as static preview images
+(generated from the badge code with `npm run gallery` — viewing them does not
+touch the counter).
+
+### Counter mode
+
+| Effect | `icon=eye` | `icon=ring` |
+|--------|------------|-------------|
+| `none` | ![Counter, eye icon](assets/badges/counter-eye-none.svg) | ![Counter, ring icon](assets/badges/counter-ring-none.svg) |
+| `rainbow` | ![Counter, eye icon, rainbow effect](assets/badges/counter-eye-rainbow.svg) | ![Counter, ring icon, rainbow effect](assets/badges/counter-ring-rainbow.svg) |
+| `gradient` | ![Counter, eye icon, gradient effect](assets/badges/counter-eye-gradient.svg) | ![Counter, ring icon, gradient effect](assets/badges/counter-ring-gradient.svg) |
+
+### Symbols mode
+
+| Effect | `icon=eye` | `icon=ring` |
+|--------|------------|-------------|
+| `none` | ![Symbols, eye icon](assets/badges/symbols-eye-none.svg) | ![Symbols, ring icon](assets/badges/symbols-ring-none.svg) |
+| `rainbow` | ![Symbols, eye icon, rainbow effect](assets/badges/symbols-eye-rainbow.svg) | ![Symbols, ring icon, rainbow effect](assets/badges/symbols-ring-rainbow.svg) |
+| `gradient` | ![Symbols, eye icon, gradient effect](assets/badges/symbols-eye-gradient.svg) | ![Symbols, ring icon, gradient effect](assets/badges/symbols-ring-gradient.svg) |
+
 ## Username lock
 
 The counter only responds to **one** username. Any other value of `username`
-returns an `Access denied` badge instead of a counter.
+returns an `Access denied` badge instead of a counter. (The denied badge is
+still delivered with HTTP 200, because GitHub's image proxy refuses to render
+error responses — the view is simply not counted.)
 
 The allowed username is read from the `ALLOWED_USERNAME` environment variable.
 Set it to your own GitHub username in your Vercel project settings — no code
@@ -85,40 +112,46 @@ change required. The match is case-insensitive.
 
 ## Setup
 
-### 1. Fork & Clone
-```bash
-git clone https://github.com/your-github-username/profile-viewer.git
-cd profile-viewer
-```
+### 1. Deploy to Vercel
 
-### 2. Get Upstash Redis Credentials
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2F0xGI0%2Fprofile-viewer&env=UPSTASH_REDIS_REST_URL,UPSTASH_REDIS_REST_TOKEN,ALLOWED_USERNAME&envDescription=Upstash%20Redis%20REST%20credentials%20and%20the%20single%20GitHub%20username%20the%20counter%20responds%20to&envLink=https%3A%2F%2Fgithub.com%2F0xGI0%2Fprofile-viewer%23setup)
 
-1. Create a free account at [Upstash](https://console.upstash.com/)
-2. Create a new Redis database
-3. Copy your credentials
+The button clones this repository into your own GitHub account and asks for
+the three environment variables right away:
 
-### 3. Deploy to Vercel
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
-
-1. Click the button above
-2. Select your forked repository
-3. Add environment variables:
 ```env
 UPSTASH_REDIS_REST_URL=your-upstash-url
 UPSTASH_REDIS_REST_TOKEN=your-upstash-token
 ALLOWED_USERNAME=your-github-username
 ```
 
-4. Deploy!
+The Redis credentials come from [Upstash](https://console.upstash.com/):
+create a free account, create a Redis database and copy the REST URL and
+token from the database details.
 
-### 4. Use in Your Profile
+(Alternatively: fork this repository and import the fork manually at
+[vercel.com/new](https://vercel.com/new).)
 
-Replace `profile-viewer-nu.vercel.app` with your own Vercel domain and use
+### 2. Use in Your Profile
+
+Replace `your-deployment.vercel.app` with your own Vercel domain and use
 your allowed username:
+
 ```markdown
 ![Profile Views](https://your-deployment.vercel.app/api/views?username=your-github-username)
 ```
+
+## Local development
+
+```bash
+git clone https://github.com/your-github-username/profile-viewer.git
+cd profile-viewer
+cp .env.example .env   # fill in your Upstash credentials
+npx vercel dev
+```
+
+The badge is then served at
+`http://localhost:3000/api/views?username=your-github-username`.
 
 ## API
 
@@ -132,6 +165,7 @@ your allowed username:
 | `mode` | ❌ | `counter` | `counter` for the number, `symbols` for random symbols |
 | `icon` | ❌ | `eye` | `eye` for the rainbow eye, `ring` for the spinning rainbow ring |
 | `effect` | ❌ | `none` | Colour effect on the value: `none`, `rainbow` (cycling rainbow + blinking cursor; alias `terminal`) or `gradient` (animated flowing gradient) |
+| `demo` | ❌ | – | `demo=1` renders the badge **without counting the view** — the counter shows the current number without incrementing it (used by the examples in this README) |
 
 **Examples:**
 ```
@@ -143,7 +177,9 @@ https://your-deployment.vercel.app/api/views?username=your-github-username&effec
 https://your-deployment.vercel.app/api/views?username=your-github-username&mode=symbols&effect=gradient
 ```
 
-Returns an SVG badge.
+Returns an SVG badge. Responses always use HTTP 200 (including the
+`Access denied` badge), because GitHub's image proxy does not display
+images from non-2xx responses.
 
 ## Privacy
 

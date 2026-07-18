@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="140" viewBox="0 0 520 140" role="img" aria-label="Profile Viewer">
+  <defs>
+    <linearGradient id="wash" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7aa2f7" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#9d7cd8" stop-opacity="1"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop class="g1" offset="0%" stop-color="#2ee6c4"/>
+      <stop class="g2" offset="50%" stop-color="#41a6ff"/>
+      <stop class="g3" offset="100%" stop-color="#ff5fbf"/>
+    </linearGradient>
+    <style>
+      .rainbow { animation: rainbow 5s linear infinite; }
+      .look { animation: look 3s ease-in-out infinite; }
+      .g1 { animation: flow 2s linear infinite; }
+      .g2 { animation: flow 2s linear infinite; animation-delay: -0.66s; }
+      .g3 { animation: flow 2s linear infinite; animation-delay: -1.33s; }
+      @keyframes rainbow {
+        0%   { stroke:#ff3b3b; fill:#ff3b3b; }
+        17%  { stroke:#ff9e2c; fill:#ff9e2c; }
+        33%  { stroke:#ffe02c; fill:#ffe02c; }
+        50%  { stroke:#3bd16f; fill:#3bd16f; }
+        67%  { stroke:#2cb6ff; fill:#2cb6ff; }
+        83%  { stroke:#9a6bff; fill:#9a6bff; }
+        100% { stroke:#ff3b3b; fill:#ff3b3b; }
+      }
+      @keyframes look {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-6px); }
+        75% { transform: translateX(6px); }
+      }
+      @keyframes flow {
+        0%   { stop-color:#2ee6c4; }
+        33%  { stop-color:#41a6ff; }
+        66%  { stop-color:#ff5fbf; }
+        100% { stop-color:#2ee6c4; }
+      }
+    </style>
+  </defs>
+
+  <rect width="520" height="140" rx="26" fill="#1a1b26"/>
+  <rect x="3" y="3" width="514" height="134" rx="23" fill="url(#wash)" opacity="0.08"/>
+
+  <g transform="translate(78, 70)">
+    <ellipse class="rainbow" cx="0" cy="0" rx="40" ry="26" fill="none" stroke="#ff3b3b" stroke-width="4.5"/>
+    <g class="look">
+      <circle class="rainbow" cx="0" cy="0" r="15" fill="#ff3b3b" fill-opacity="0.45"/>
+      <circle cx="0" cy="0" r="9.5" fill="#0b0c12"/>
+      <circle cx="-3.8" cy="-4.4" r="3.4" fill="#ffffff" fill-opacity="0.85"/>
+    </g>
+  </g>
+
+  <text x="146" y="66" font-family="'Segoe UI', Arial, sans-serif" font-size="40" font-weight="bold" fill="#c0caf5">Profile Viewer</text>
+  <rect x="148" y="80" width="256" height="4" rx="2" fill="url(#bar)"/>
+  <text x="148" y="106" font-family="'Segoe UI', Arial, sans-serif" font-size="15" fill="#a9b1d6">A self-hosted GitHub profile view counter</text>
+</svg>
